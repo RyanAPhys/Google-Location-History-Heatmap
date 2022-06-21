@@ -37,6 +37,8 @@
 <body>
     <div id="map"></div> <!-- map -->
     <div id="guide"></div>
+    <input type="number" id="x_ratio" onChange="x_guide_updater(this.value);" value="1">
+    <input type="number" id="y_ratio" onChange="x_guide_updater(this.value);" value="1">
 
     <script>
         mapboxgl.accessToken = "pk.eyJ1IjoiZHluYW1pY2R1Y2siLCJhIjoiY2tpeHNjemV1M3U4NzJxbGJ3cHdudmJneiJ9.WiaSu7K-1gCvipLv-BR3pA"; // public API key
@@ -51,6 +53,14 @@
         new MapboxGeocoder({
         accessToken: mapboxgl.accessToken,
         mapboxgl: mapboxgl}));
+	    
+	function x_guide_updater(val) {
+  	    document.getElementById("demo").innerHTML = val;
+	}
+	
+	function y_guide_updater(val) {
+  	    document.getElementById("demo").innerHTML = val;
+	}
 	
     </script>
 </body>
