@@ -20,18 +20,23 @@
             padding: 0;
         }
 
-	    #map {
+	#map {
             position: absolute;
             top: 0; bottom: 0;
             left:0; right:0;
             width: 100%;
         }
+	
+	#guide {
+    	    box-shadow: 0px 0px 1px 100vmax rgba(0,0,0,0.5);
+	}
 
     </style>
 </head>
 
 <body>
     <div id="map"></div> <!-- map -->
+    <div id="guide"></div>
 
     <script>
         mapboxgl.accessToken = "pk.eyJ1IjoiZHluYW1pY2R1Y2siLCJhIjoiY2tpeHNjemV1M3U4NzJxbGJ3cHdudmJneiJ9.WiaSu7K-1gCvipLv-BR3pA"; // public API key
