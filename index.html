@@ -8,8 +8,8 @@
     <meta name="description" content="Make a heatmap of your Google location history.">
     <meta name="author" content="Ryan Alexander">
 
-    <script src="https://api.mapbox.com/mapbox-gl-js/v2.0.0/mapbox-gl.js"></script> <!-- map -->
-    <link href="https://api.mapbox.com/mapbox-gl-js/v2.0.0/mapbox-gl.css" rel="stylesheet" />
+    <script src="https://api.mapbox.com/mapbox-gl-js/v2.8.2/mapbox-gl.js"></script> <!-- map -->
+    <link href="https://api.mapbox.com/mapbox-gl-js/v2.8.2/mapbox-gl.css" rel="stylesheet" />
 
     <script src="https://api.mapbox.com/mapbox-gl-js/plugins/mapbox-gl-geocoder/v4.5.1/mapbox-gl-geocoder.min.js"></script> <!-- geocoder -->
     <link rel="stylesheet" href="https://api.mapbox.com/mapbox-gl-js/plugins/mapbox-gl-geocoder/v4.5.1/mapbox-gl-geocoder.css" type="text/css" />
@@ -34,28 +34,63 @@
             align-items: center;
             height: 100%;
             width: 100%;
+            pointer-events: none;
+        }
+
+        #guide_container2 {
+            position: absolute;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            height: 80%;
+            width: 80%;
+            pointer-events: none;
         }
 
 	    #guide {
 	        position: absolute;
-            height: 500px;
-            width: 500px;
+            height: 100%;
+            width: 100%;
     	    box-shadow: 0px 0px 1px 100vmax rgba(0,0,0,0.5);
             outline: dashed 3px black;
+            pointer-events: none;
 	    }
 	
 	    #controls {
 	        position: absolute;
+            background-color: white;
+            box-shadow: 0px 0px 5px rgba(0,0,0,0.5);
+            border-radius: 3px;
+            padding: 5px;
 	    }
+
+        input[type='number']{
+            width: 50pt;
+        }
+
+        #running {
+            display: none;
+            background-color: black;
+            width: 100%;
+            height: 100%;
+        }
+
     </style>
 </head>
 
-<body>
+<body onload="guide_updater()">
     <div id="map"></div> <!-- map -->
-    <div id="guide_container"><div id="guide"></div></div>
+    <div id="guide_container">
+        <div id="guide_container2">
+            <div id="guide"><div id="running"></div></div>
+        </div>
+    </div>
     <div id="controls">
-        <input type="number" id="x_ratio" onChange="x_guide_updater(this.value);" value="1">
-        <input type="number" id="y_ratio" onChange="x_guide_updater(this.value);" value="1">
+        <label>x ratio: </label><input type="number" id="x_ratio" onChange="guide_updater();" value="1">
+        <label>y ratio: </label><input type="number" id="y_ratio" onChange="guide_updater();" value="1">
+        <label for="file-selector">records.json: </label><input type="file" id="file-selector" accept=".json">
+        <button class="button" onclick=run()>Run</button>
+        <button class="button" onclick=unrun()>Undo run</button>
     </div>
 
     <script>
@@ -72,13 +107,62 @@
         accessToken: mapboxgl.accessToken,
         mapboxgl: mapboxgl}));
 	    
-	function x_guide_updater(val) {
-  	    document.getElementById("demo").innerHTML = val;
+	function guide_updater() {
+        var x = document.getElementById("x_ratio").value;
+        console.log(x);
+        var y = document.getElementById("y_ratio").value;
+        console.log(y);
+        var guide_ratio = x/y;
+        console.log(guide_ratio);
+        var x_lim = document.getElementById("guide_container2").offsetWidth;
+        console.log(x_lim);
+        var y_lim = document.getElementById("guide_container2").offsetHeight;
+        console.log(y_lim);
+        var container_ratio = x_lim/y_lim;
+        console.log(container_ratio);
+
+        if (guide_ratio > container_ratio){
+            console.log(1);
+            var x_px = x_lim;
+            console.log(x_px);
+            var y_px = x_px/guide_ratio;
+            console.log(y_px);
+        } else {
+            console.log(2);
+            var y_px = y_lim;
+            console.log(y_px);
+            var x_px = y_px*guide_ratio;
+            console.log(x_px);
+        }
+        
+        var guide = document.getElementById("guide");
+        guide.style.width = x_px.toString() + "px";
+        guide.style.height = y_px.toString() + "px";
 	}
-	
-	function y_guide_updater(val) {
-  	    document.getElementById("demo").innerHTML = val;
-	}
+
+    function run() {
+        console.log("Run");
+        var centre = map.getCenter();
+        var zoom = map.getZoom();
+        console.log(centre, zoom);
+        var x = document.getElementById("guide").offsetWidth;
+        var y = document.getElementById("guide").offsetHeight;
+        var running = document.getElementById("running");
+        running.style.display = "block";
+        
+        var left = document.getElementById("guide").getBoundingClientRect().left;
+        var right = document.getElementById("guide").getBoundingClientRect().right;
+        var top = document.getElementById("guide").getBoundingClientRect().top;
+        var bottom = document.getElementById("guide").getBoundingClientRect().bottom;
+        var ne = map.unproject([left, top]);
+        var nw = map.unproject([right, top]);
+        var se = map.unproject([left, bottom]);
+        var sw = map.unproject([right, bottom]);
+    }
+
+    function unrun() {
+        running.style.display = "none";
+    }
 	
     </script>
 </body>
